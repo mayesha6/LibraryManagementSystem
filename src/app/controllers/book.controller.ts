@@ -52,6 +52,13 @@ bookRoutes.get(
     try {
       const bookId = req.params.bookId;
       const book = await Book.findById(bookId);
+      if (!book) {
+        res.status(404).json({
+          success: false,
+          message: "Book not found.",
+        });
+        return;
+      }
 
       res.status(201).json({
         success: true,
@@ -69,9 +76,17 @@ bookRoutes.put(
     try {
       const bookId = req.params.bookId;
       const updateBook = req.body;
-      const book = await Book.findByIdAndUpdate(bookId, updateBook, {
-        new: true,
-      });
+      const book = await Book.findById(bookId);
+      if (!book) {
+        res.status(404).json({
+          success: false,
+          message: "Book not found",
+        });
+        return;
+      }
+
+      Object.assign(book, updateBook);
+      await book.save();
 
       res.status(201).json({
         success: true,
@@ -90,6 +105,13 @@ bookRoutes.delete(
       const bookId = req.params.bookId;
       const book = await Book.findByIdAndDelete(bookId);
 
+      if (!book) {
+        res.status(404).json({
+          success: false,
+          message: "Book not found.",
+        });
+        return;
+      }
       res.status(201).json({
         success: true,
         message: "Book deleted successfully",

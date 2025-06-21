@@ -1,9 +1,11 @@
 import { model, Schema } from "mongoose";
 import { IBook } from "../interfaces/book.interface";
+import { Borrow } from "./borrow.model";
 
 interface BookDocument extends IBook, Document {
   updateAvailability: () => void;
 }
+
 
 const bookSchema = new Schema<BookDocument>(
   {
@@ -56,11 +58,19 @@ const bookSchema = new Schema<BookDocument>(
 );
 
 bookSchema.methods.updateAvailability = function () {
-  if (this.copies > 0) {
-    this.available = true;
-  } else {
-    this.available = false;
-  }
+  this.available = this.copies > 0;
 };
+
+bookSchema.pre("save", function (next) {
+  this.updateAvailability()
+  next();
+});
+
+bookSchema.post("findOneAndDelete", async function (doc) {
+  if (doc) {
+    await Borrow.deleteMany({ book: doc._id });
+  }
+});
+
 
 export const Book = model<BookDocument>("Book", bookSchema);
