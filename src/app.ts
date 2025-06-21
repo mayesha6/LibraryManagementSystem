@@ -10,7 +10,7 @@ app.use("/api/borrow", borrowRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
-    message: "Welcome to Library Management System.",
+    message: "Welcome to Library Management System...",
   });
 });
 app.use((req: Request, res: Response, next: NextFunction) => {
